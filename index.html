@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>邓瑢 - 交互作品集 Portfolio</title>
+    
+    <!-- 引入 Swiper.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <!-- 引入字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;0,700;1,600&family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <!-- 引入 FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ================= Spring Fields 春日原野配色卡 ================= */
+        :root {
+            --c1-dark:   #008E6B;  
+            --c2-mid:    #46B065;  
+            --c3-light:  #81C570;  
+            --c4-pale:   #DCECB5;  
+            --c5-bg:     #FBFFF2;  
+            
+            --font-sans: 'Poppins', -apple-system, sans-serif;
+            --font-serif: 'Playfair Display', Georgia, serif; 
+        }
+
+        html, body {
+            height: 100%; margin: 0; padding: 0;
+            background-color: var(--c5-bg); font-family: var(--font-sans);
+            color: var(--c1-dark); overflow: hidden;
+        }
+        * { box-sizing: border-box; }
+
+        /* ================= 动态春日呼吸背景 ================= */
+        .bg-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0; overflow: hidden; pointer-events: none; background: var(--c5-bg);
+        }
+        .orb {
+            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.7;
+            animation: float 15s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 350px; height: 350px; background: var(--c4-pale); top: -50px; left: -50px; animation-delay: 0s; }
+        .orb-2 { width: 400px; height: 400px; background: var(--c3-light); bottom: -150px; right: -50px; animation-delay: -5s; opacity: 0.3;}
+        .orb-3 { width: 300px; height: 300px; background: var(--c4-pale); top: 30%; right: -100px; animation-delay: -10s; opacity: 0.8;}
+        
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 40px) scale(1.05); }
+            100% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+        .grid-overlay {
+            position: absolute; width: 100%; height: 100%;
+            background-image: radial-gradient(rgba(0, 142, 107, 0.05) 1px, transparent 1px);
+            background-size: 25px 25px; z-index: 1;
+        }
+
+        /* ================= Swiper 设置 ================= */
+        .swiper { width: 100%; height: 100%; z-index: 10; }
+        .swiper-slide {
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 40px 30px; position: relative;
+        }
+
+        /* ================= 动画体系 ================= */
+        .anim-element { opacity: 0; transform: translateY(25px); transition: all 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .swiper-slide-active .anim-element { opacity: 1; transform: translateY(0); }
+        .delay-1 { transition-delay: 0.1s; } .delay-2 { transition-delay: 0.2s; } .delay-3 { transition-delay: 0.3s; } .delay-4 { transition-delay: 0.4s; }
+
+        /* ================= 排版与图文样式 ================= */
+        .top-label { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--c2-mid); margin-bottom: 20px; font-weight: 600; }
+        .project-num { font-family: var(--font-serif); font-size: 45px; color: var(--c3-light); font-style: italic; line-height: 1; margin-bottom: 5px; opacity: 0.6; }
+        .project-title { font-family: var(--font-serif); font-size: 32px; background: linear-gradient(135deg, var(--c1-dark), var(--c2-mid)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 12px 0; line-height: 1.1; font-weight: 700; }
+        .project-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .ptag { font-size: 10px; border: 1px solid var(--c3-light); background: rgba(251, 255, 242, 0.8); padding: 4px 12px; border-radius: 20px; color: var(--c1-dark); text-transform: uppercase; font-weight: 600; }
+        .body-text { font-size: 12px; line-height: 1.6; color: var(--c1-dark); text-align: justify; margin-bottom: 15px;}
+        .body-text strong { font-weight: 700; color: var(--c1-dark); }
+
+        /* ================= 可交互图片框 (核心) ================= */
+        .img-box {
+            background-color: var(--c4-pale);
+            border-radius: 12px; overflow: hidden; position: relative;
+            box-shadow: 0 15px 35px rgba(0, 142, 107, 0.08);
+            cursor: pointer; 
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .img-box:active { transform: scale(0.97); }
+
+        .img-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .img-large { width: 100%; height: 260px; margin-bottom: 15px; }
+        .img-tall { width: 100%; height: 360px; margin-bottom: 15px; }
+        .img-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        .img-grid-2 .img-box { height: 140px; }
+
+        /* 放大镜小提示 */
+        .zoom-hint {
+            position: absolute; bottom: 8px; right: 8px;
+            background: rgba(251, 255, 242, 0.9); color: var(--c1-dark);
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            opacity: 0.8; pointer-events: none;
+        }
+
+        /* ================= 封面专属 ================= */
+        .cover-name { position: relative; margin-bottom: 30px; }
+        .cover-name h1 { font-family: var(--font-serif); font-size: 60px; line-height: 0.9; color: var(--c1-dark); margin: 0; position: relative; z-index: 2; }
+        .cover-blob { position: absolute; background: linear-gradient(135deg, var(--c3-light), var(--c4-pale)); width: 140px; height: 60px; border-radius: 40px 60px 50px 40px; top: -10px; left: -10px; z-index: 1; transform: rotate(-5deg); opacity: 0.8; }
+
+        /* 滑动提示 */
+        .swipe-guide { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 44px; height: 44px; border-radius: 50%; background: var(--c5-bg); display: flex; justify-content: center; align-items: center; color: var(--c1-dark); font-size: 20px; z-index: 999; box-shadow: 0 8px 20px rgba(0, 142, 107, 0.15); animation: bounce 1.5s infinite; pointer-events: none; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); } 40% { transform: translateY(-10px) translateX(-50%); } 60% { transform: translateY(-5px) translateX(-50%); } }
+        .swiper-pagination-bullet { background: var(--c3-light); opacity: 0.5; }
+        .swiper-pagination-bullet-active { background: var(--c1-dark) !important; opacity: 1; }
+
+        /* ================= 图片点击放大 (Lightbox) 核心样式 ================= */
+        .lightbox-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 142, 107, 0.85); 
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            z-index: 99999; display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        
+        .lightbox-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .lightbox-img-wrapper {
+            position: relative; max-width: 90%; max-height: 85vh;
+            transform: scale(0.95) translateY(20px); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .lightbox-overlay.active .lightbox-img-wrapper { transform: scale(1) translateY(0); }
+
+        .lightbox-img-wrapper img {
+            width: 100%; height: auto; max-height: 85vh; object-fit: contain;
+            border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border: 2px solid rgba(251, 255, 242, 0.8);
+        }
+
+        .lightbox-close {
+            position: absolute; top: -40px; right: 0;
+            color: var(--c5-bg); font-size: 28px; cursor: pointer;
+            opacity: 0.8; transition: opacity 0.2s;
+        }
+        .lightbox-close:active { opacity: 1; transform: scale(0.9); }
+        .lightbox-tip {
+            position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%);
+            color: var(--c4-pale); font-size: 12px; font-weight: 500; letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 动态呼吸背景 -->
+    <div class="bg-container">
+        <div class="grid-overlay"></div>
+        <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+    </div>
+
+    <!-- 向上滑动提示 -->
+    <div class="swipe-guide"><i class="fas fa-angle-double-down"></i></div>
+
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+
+            <!-- 第1页：封面 -->
+            <div class="swiper-slide" style="align-items: center; text-align: center;">
+                <div class="cover-name anim-element"><div class="cover-blob"></div><h1>portfolio.</h1></div>
+                <div class="top-label anim-element delay-1" style="margin-bottom: 40px;">Selected Works 2023 - 2024</div>
+                
+                <!-- 封面图 (可点击) -->
+                <div class="img-box anim-element delay-2 zoomable" style="width: 240px; height: 320px; border-radius: 120px 120px 0 0;">
+                    
+                    <!-- 🔻🔻🔻 替换图片 🔻🔻🔻 -->
+                    <img src="封面.jpg" alt="封面图">
+                    <!-- 🔺🔺🔺 替换图片 🔺🔺🔺 -->
+                    
+                    <div class="zoom-hint"><i class="fas fa-search-plus"></i></div>
+                </div>
+
+                <div class="anim-element delay-3" style="margin-top: 35px;">
+                    <h2 style="font-family: var(--font-serif); font-size: 24px; margin: 0; color: var(--c1-dark);">deng rong.</h2>
+                    <p style="font-size: 11px; color: var(--c2-mid); letter-spacing: 3px; font-weight: 600; margin-top: 5px;">Product & UI Designer</p>
+                </div>
+            </div>
+
+            <!-- 第2页：目录 -->
+            <div class="swiper-slide">
+                <div class="top-label anim-element">I n d e x</div>
+                <h2 class="project-title anim-element delay-1" style="margin-bottom: 40px;">Contents.</h2>
+                <div class="anim-element delay-2" style="border-bottom: 1px solid rgba(0, 142, 107, 0.2); padding-bottom: 15px; margin-bottom: 25px;">
+                    <div style="font-size: 12px; color: var(--c2-mid); font-weight: 800;">01</div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;"><h3 style="font-family: var(--font-serif); font-size: 20px; margin: 5px 0;">YI YANG / 颐养</h3><span style="font-size: 11px; color: var(--c2-mid); font-weight: 500;">Smart Pillbox</span></div>
+                </div>
+                <div class="anim-element delay-3" style="border-bottom: 1px solid rgba(0, 142, 107, 0.2); padding-bottom: 15px; margin-bottom: 25px;">
+                    <div style="font-size: 12px; color: var(--c2-mid); font-weight: 800;">02</div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;"><h3 style="font-family: var(--font-serif); font-size: 20px; margin: 5px 0;">Web Redesign</h3><span style="font-size: 11px; color: var(--c2-mid); font-weight: 500;">UI Interface</span></div>
+                </div>
+                <div class="anim-element delay-4" style="border-bottom: 1px solid rgba(0, 142, 107, 0.2); padding-bottom: 15px;">
+                    <div style="font-size: 12px; color: var(--c2-mid); font-weight: 800;">03</div>
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;"><h3 style="font-family: var(--font-serif); font-size: 20px; margin: 5px 0;">Visual & CMF</h3><span style="font-size: 11px; color: var(--c2-mid); font-weight: 500;">3D Render</span></div>
+                </div>
+            </div>
+
+            <!-- 第3页：项目一 介绍 -->
+            <div class="swiper-slide">
+                <div class="project-num anim-element">01</div>
+                <h2 class="project-title anim-element delay-1">YI YANG<br>颐养智能药盒</h2>
+                <div class="project-tags anim-element delay-2"><span class="ptag">Product Design</span><span class="ptag" style="background: var(--c1-dark); color: var(--c5-bg); border: none;">二等奖</span></div>
+                <div class="body-text anim-element delay-3">针对老年人群体“忘服药、分不清药”的痛点，设计的磁吸式智能药盒。斩获校级工业设计大赛二等奖。</div>
+
+                <!-- 核心产品大图 (可点击) -->
+                <div class="img-box img-large anim-element delay-4 zoomable">
+                    
+                    <!-- 🔻🔻🔻 替换图片 🔻🔻🔻 -->
+                    <img src="药盒.jpg" alt="智能药盒主图">
+                    <!-- 🔺🔺🔺 替换图片 🔺🔺🔺 -->
+                    
+                    <div class="zoom-hint"><i class="fas fa-search-plus"></i></div>
+                </div>
+            </div>
+
+            <!-- 第4页：项目一 细节展示 -->
+            <div class="swiper-slide">
+                <div class="top-label anim-element">P r o j e c t &nbsp;0 1 &nbsp;D e t a i l s</div>
+                <div class="body-text anim-element delay-1"><strong>设计推演与建模：</strong>运用 Rhino 完成结构建模，适应老年人生理特征。</div>
+                
+                <!-- 并排两张图 (可点击) -->
+                <div class="img-grid-2 anim-element delay-2">
+                    <div class="img-box zoomable">
+                        
+                        <!-- 🔻🔻🔻 替换图片 🔻🔻🔻 -->
+                        <img src="手绘.jpg" alt="草图">
+                        <!-- 🔺🔺🔺 替换图片 🔺🔺🔺 -->
+
+                        <div class="zoom-hint"><i class="fas fa-search-plus"></i></div>
+                    </div>
+                    <div class="img-box zoomable">
+                        
+                        <!-- 🔻🔻🔻 替换图片 🔻🔻🔻 -->
+                        <img src="建模药盒.jpg" alt="Rhino素模">
+                        <!-- 🔺🔺🔺 替换图片 🔺🔺🔺 -->
+                        
+                        <div class="zoom-hint"><i class="fas fa-search-plus"></i></div>
+                    </div>
+                </div>
+
+                <div class="body-text anim-element delay-3"><strong>高保真渲染：</strong>使用 KeyShot 模拟真实材质。</div>
+                <div class="img-box anim-element delay-4 zoomable" style="height: 160px;">
+                    
+                    <!-- 🔻🔻🔻 替换图片 🔻🔻🔻 -->
+                    <img src="渲染模型药盒.jpg" alt="KeyShot细节渲染">
+                    <!-- 🔺🔺🔺 替换图片 🔺🔺🔺 -->
+                    
+                    <div class="zoom-hint"><i class="fas fa-search-plus"></i></div>
+                </div>
+            </div>
+
+            <!-- 第5页：项目二 UI设计 -->
+            <div class="swiper-slide">
+                <div class="project-num anim-element">02</div>
+                <h2 class="project-title anim-element delay-1">Web Redesign<br>官网界面重塑</h2>
+                <div class="project-tags anim-element delay-2"><span class="ptag">UI/UX Design</span><span class="ptag">Figma</span></div>
+                <div class="body-text anim-element delay-3" style="margin-bottom: 20px;">实习期间主导的官网视觉重塑，提升了信息的层级清晰度与品牌调性。</div>
+
+                <!-- 竖向长图 (可点击) -->
+                <div class="img-box img-tall anim-element delay-4 zoomable">
+                    
+                    <!-- 🔻🔻🔻 替换图片 🔻🔻🔻 -->
+                    <img src="UI.jpg" alt="UI长图">
+                    <!-- 🔺🔺🔺 替换图片 🔺🔺🔺 -->
+                    
+                    <div class="zoom-hint"><i class="fas fa-search-plus"></i></div>
+                </div>
+            </div>
+
+            <!-- 第6页：封底 Back Cover -->
+            <div class="swiper-slide" style="align-items: center; text-align: center; justify-content: center;">
+                <div class="anim-element"><div style="font-family: var(--font-serif); font-size: 65px; line-height: 1; color: var(--c1-dark); font-style: italic;">Thank<br>You.</div></div>
+                <div class="anim-element delay-2" style="margin-top: 30px;"><p style="font-size: 13px; font-weight: 600; color: var(--c2-mid); letter-spacing: 2px;">在幻变的生命里<br>设计是平衡理性与感性的桥梁</p></div>
+                <div class="anim-element delay-3" style="margin-top: 30px; border-top: 1px solid rgba(0, 142, 107, 0.2); padding-top: 25px; width: 85%;">
+                    <h3 style="font-family: var(--font-serif); font-size: 18px; margin-bottom: 10px; color: var(--c1-dark);">Let's create together</h3>
+                    <p style="font-size: 12px; color: var(--c1-dark); line-height: 1.8; font-weight: 600;">2842418128@qq.com<br>+86 184 5677 5507<br>期待成为您的实习生</p>
+                </div>
+            </div>
+
+        </div>
+        <div class="swiper-pagination"></div>
+    </div>
+
+    <!-- ================= 全屏图片放大画廊 (Lightbox) ================= -->
+    <div id="lightbox" class="lightbox-overlay">
+        <div class="lightbox-img-wrapper">
+            <i class="fas fa-times lightbox-close" id="lightbox-close"></i>
+            <img id="lightbox-img" src="" alt="大图预览">
+            <div class="lightbox-tip">点击背景任意处关闭</div>
+        </div>
+    </div>
+
+    <!-- 引入 Swiper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script>
+        // 初始化 Swiper 滑动翻页
+        var swiper = new Swiper(".mySwiper", {
+            direction: "vertical", 
+            slidesPerView: 1,
+            spaceBetween: 0,
+            mousewheel: true, 
+            speed: 800,       
+            pagination: { el: ".swiper-pagination", clickable: true },
+            on: {
+                slideChange: function () {
+                    var guide = document.querySelector('.swipe-guide');
+                    if (this.isEnd) guide.style.display = 'none';
+                    else guide.style.display = 'flex';
+                }
+            }
+        });
+
+        // 图片放大画廊 (Lightbox) 交互逻辑
+        const zoomables = document.querySelectorAll('.zoomable');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const closeBtn = document.getElementById('lightbox-close');
+
+        // 绑定点击事件
+        zoomables.forEach(box => {
+            box.addEventListener('click', function() {
+                const imgSrc = this.querySelector('img').src;
+                lightboxImg.src = imgSrc;
+                lightbox.classList.add('active');
+                swiper.allowTouchMove = false; // 看图时禁止底图滑动
+            });
+        });
+
+        // 关闭逻辑
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            swiper.allowTouchMove = true; 
+        }
+
+        closeBtn.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox) closeLightbox();
+        });
+    </script>
+</body>
+</html>
